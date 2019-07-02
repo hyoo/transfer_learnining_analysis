@@ -22,12 +22,12 @@ def run_cv_training(cv, dropout):
 
 def load_data():
     store = pd.HDFStore('cv.h5', 'r')
-    df_y_train = store.get('df_y_train')
-    df_x_train_cl = store.get('df_x_train_cl')
-    df_x_train_dr = store.get('df_x_train_dr')
-    df_y_val = store.get('df_y_val')
-    df_x_val_cl = store.get('df_x_val_cl')
-    df_x_val_dr = store.get('df_x_val_dr')
+    df_y_train = store.get('y_train')
+    df_x_train_cl = store.get('x_train_cl')
+    df_x_train_dr = store.get('x_train_dr')
+    df_y_val = store.get('y_val')
+    df_x_val_cl = store.get('x_val_cl')
+    df_x_val_dr = store.get('x_val_dr')
 
     return (df_y_train, df_x_train_cl, df_x_train_dr), (df_y_val, df_x_val_cl, df_x_val_dr)
 
