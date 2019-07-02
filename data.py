@@ -43,10 +43,14 @@ class UnoDataLoader():
         df_y_train = res_train.reset_index(drop=True)
         df_x_train_cl = df_y_train.merge(genomics, left_on='ccl_name', how='left', right_index=True)
         df_x_train_dr = df_y_train.merge(drug, left_on='ctrpDrugID', how='left', right_index=True)
+        df_x_train_cl.drop(columns=['SOURCE', 'ccl_name', 'ctrpDrugID', 'area_under_curve', 'groupID'], inplace=True)
+        df_x_train_dr.drop(columns=['SOURCE', 'ccl_name', 'ctrpDrugID', 'area_under_curve', 'groupID'], inplace=True)
 
         df_y_val = res_val.reset_index(drop=True)
         df_x_val_cl = df_y_val.merge(genomics, left_on='ccl_name', how='left', right_index=True)
         df_x_val_dr = df_y_val.merge(drug, left_on='ctrpDrugID', how='left', right_index=True)
+        df_x_val_cl.drop(columns=['SOURCE', 'ccl_name', 'ctrpDrugID', 'area_under_curve', 'groupID'], inplace=True)
+        df_x_val_dr.drop(columns=['SOURCE', 'ccl_name', 'ctrpDrugID', 'area_under_curve', 'groupID'], inplace=True)
 
         return (df_y_train, df_x_train_cl, df_x_train_dr), (df_y_val, df_x_val_cl, df_x_val_dr)
 
@@ -70,10 +74,10 @@ if __name__ == '__main__':
     (df_y_train, df_x_train_cl, df_x_train_dr), (df_y_val, df_x_val_cl, df_x_val_dr) = loader.load()
 
     store = pd.HDFStore('cv.h5', 'w')
-    store.put('df_y_train', df_y_train)
-    store.put('df_x_train_cl', df_x_train_cl)
-    store.put('df_x_train_dr', df_x_train_dr)
-    store.put('df_y_val', df_y_val)
-    store.put('df_x_val_cl', df_x_val_cl)
-    store.put('df_x_val_dr', df_x_val_dr)
+    store.put('y_train', df_y_train)
+    store.put('x_train_cl', df_x_train_cl)
+    store.put('x_train_dr', df_x_train_dr)
+    store.put('y_val', df_y_val)
+    store.put('x_val_cl', df_x_val_cl)
+    store.put('x_val_dr', df_x_val_dr)
     store.close()
