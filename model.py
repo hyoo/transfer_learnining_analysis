@@ -4,6 +4,7 @@ from tensorflow.keras.layers import Input, Dense, Dropout
 from tensorflow.keras.layers import concatenate
 from tensorflow.keras import backend as K
 
+
 def build_model(feature_shapes, input_features, params):
     input_models = {}
     dropout_rate = params.get('drop')
@@ -45,6 +46,7 @@ def build_model(feature_shapes, input_features, params):
 
     return Model(inputs, output)
 
+
 def build_feature_model(input_shape,
                         name='',
                         dense_layers=[1000, 1000, 1000],
@@ -77,3 +79,13 @@ class PermanentDropout(Dropout):
             noise_shape = self._get_noise_shape(x)
             x = K.dropout(x, self.rate, noise_shape)
         return x
+
+
+def r2(y_true, y_pred):
+    SS_res = K.sum(K.square(y_true - y_pred))
+    SS_tot = K.sum(K.square(y_true - K.mean(y_true)))
+    return (1 - SS_res / (SS_tot + K.epsilon()))
+
+
+def mae(y_true, y_pred):
+    return tf.keras.metrics.mean_absolute_error(y_true, y_pred)
