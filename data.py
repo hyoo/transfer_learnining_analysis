@@ -68,6 +68,7 @@ def read_text_list(path):
     with open(path, 'r') as txt_list_file:
         return list(map(lambda x: x.strip(), txt_list_file.readlines()))
 
+
 if __name__ == '__main__':
 
     loader = UnoDataLoader()
