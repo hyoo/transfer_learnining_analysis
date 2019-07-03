@@ -7,7 +7,7 @@ from tensorflow.keras import backend as K
 
 def build_model(feature_shapes, input_features, params):
     input_models = {}
-    dropout_rate = params.get('drop')
+    dropout_rate = params.get('dropout_rate')
     for fea_type, shape in feature_shapes.items():
         base_type = fea_type.split('.')[0]
         if base_type in ['cell', 'drug']:
