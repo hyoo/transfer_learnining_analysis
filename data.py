@@ -83,7 +83,7 @@ if __name__ == '__main__':
     loader = UnoDataLoader(source=args.data_source, cv=args.cv)
     (df_y_train, df_x_train_cl, df_x_train_dr), (df_y_val, df_x_val_cl, df_x_val_dr) = loader.load()
 
-    store = pd.HDFStore('{}.{}.h5'.format(args.data_source, args.cv), 'w')
+    store = pd.HDFStore('{}.{}.h5'.format(args.data_source, args.cv), 'w', complevel=9, complib='blosc:snappy')
     store.put('y_train', df_y_train)
     store.put('x_train_cl', df_x_train_cl)
     store.put('x_train_dr', df_x_train_dr)
