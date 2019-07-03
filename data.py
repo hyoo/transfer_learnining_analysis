@@ -1,6 +1,7 @@
 import _pickle as pkl
 from pathlib import Path
 import os
+import argparse
 import pandas as pd
 
 
@@ -70,11 +71,19 @@ def read_text_list(path):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data_source', type=str, default='GDSC',
+                        choices=['GDSC', 'CCLE', 'CTRP', 'NCI60', 'gCSI'],
+                        help='Data Source')
+    parser.add_argument('--cv', type=int, default=0,
+                        help='partition number')
 
-    loader = UnoDataLoader()
+    args, unparsed = parser.parse_known_args()
+
+    loader = UnoDataLoader(source=args.data_source, cv=args.cv)
     (df_y_train, df_x_train_cl, df_x_train_dr), (df_y_val, df_x_val_cl, df_x_val_dr) = loader.load()
 
-    store = pd.HDFStore('cv.h5', 'w')
+    store = pd.HDFStore('{}.{}.h5'.format(args.data_source, args.cv), 'w')
     store.put('y_train', df_y_train)
     store.put('x_train_cl', df_x_train_cl)
     store.put('x_train_dr', df_x_train_dr)
