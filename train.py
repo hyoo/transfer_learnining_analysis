@@ -60,6 +60,7 @@ def load_data_from_file(params):
     df_y_val = store.get('y_val')
     df_x_val_cl = store.get('x_val_cl')
     df_x_val_dr = store.get('x_val_dr')
+    store.close()
 
     return (df_y_train, df_x_train_cl, df_x_train_dr), (df_y_val, df_x_val_cl, df_x_val_dr)
 
@@ -78,7 +79,7 @@ def run_cv(params):
 
 
 def main(params):
-    for dropout in range(0, 5, 1):
+    for dropout in range(0, 6, 1):
         params['dropout_rate'] = dropout * 0.1
         cv_stat = run_cv(params)
         print('for dropout rate {}'.format(params['dropout_rate']), cv_stat)
@@ -87,7 +88,7 @@ def main(params):
 if __name__ == '__main__':
     params = {'data_source': 'GDSC',
               'batch_size': 512,
-              'epochs': 2,
+              'epochs': 30,
               'activation': 'relu',
               'optimizer': 'adam',
               'loss': 'mse',
