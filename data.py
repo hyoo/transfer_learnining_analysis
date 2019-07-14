@@ -70,6 +70,36 @@ def read_text_list(path):
         return list(map(lambda x: x.strip(), txt_list_file.readlines()))
 
 
+def load_data(params, from_file=False):
+    if from_file:
+        return load_data_from_file(params)
+    else:
+        return load_data_from_loader(params)
+
+
+def load_data_from_loader(params):
+    loader = UnoDataLoader(source=params.get('data_source'),
+                           cv=params.get('cv'))
+    return loader.load()
+
+
+def load_data_from_file(params):
+    path = Path('{}.{}.h5'.format(params.get('data_source'), params.get('cv')))
+    if not path.is_file:
+        raise Exception('file {} is not exits'.format(path))
+
+    store = pd.HDFStore(path, 'r')
+    df_y_train = store.get('y_train')
+    df_x_train_cl = store.get('x_train_cl')
+    df_x_train_dr = store.get('x_train_dr')
+    df_y_val = store.get('y_val')
+    df_x_val_cl = store.get('x_val_cl')
+    df_x_val_dr = store.get('x_val_dr')
+    store.close()
+
+    return (df_y_train, df_x_train_cl, df_x_train_dr), (df_y_val, df_x_val_cl, df_x_val_dr)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_source', type=str, default='GDSC',

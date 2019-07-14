@@ -1,12 +1,19 @@
-from pathlib import Path
 from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.optimizers import SGD
 from model import build_model, r2, mae
-from data import UnoDataLoader
+from data import load_data
 import pandas as pd
 import numpy as np
 
 
-def run_cv_training(params):
+def get_optimizer(optimizer):
+    if optimizer == 'SGD':
+        return SGD(lr=0.05, momentum=0.9)
+    else:
+        return optimizer
+
+
+def train(params):
     print('start training on {} data, cv:{}, dropout: {}'
           .format(params.get('data_source'), params.get('cv'), params.get('dropout_rate')))
 
@@ -21,7 +28,7 @@ def run_cv_training(params):
 
     model = build_model(feature_shapes, input_features, params)
     model.summary()
-    model.compile(loss=params.get('loss'), optimizer=params.get('optimizer'), metrics=[mae, r2])
+    model.compile(loss=params.get('loss'), optimizer=get_optimizer(params.get('optimizer')), metrics=[mae, r2])
     history = model.fit([df_x_train_cl, df_x_train_dr], y_train,
                         batch_size=params.get('batch_size'),
                         epochs=params.get('epochs'),
@@ -35,41 +42,11 @@ def run_cv_training(params):
     return stat
 
 
-def load_data(param, from_file=False):
-    if from_file:
-        return load_data_from_file(params)
-    else:
-        return load_data_from_loader(params)
-
-
-def load_data_from_loader(params):
-    loader = UnoDataLoader(source=params.get('data_source'),
-                           cv=params.get('cv'))
-    return loader.load()
-
-
-def load_data_from_file(params):
-    path = Path('{}.{}.h5'.format(params.get('data_source'), params.get('cv')))
-    if not path.is_file:
-        raise Exception('file {} is not exits'.format(path))
-
-    store = pd.HDFStore(path, 'r')
-    df_y_train = store.get('y_train')
-    df_x_train_cl = store.get('x_train_cl')
-    df_x_train_dr = store.get('x_train_dr')
-    df_y_val = store.get('y_val')
-    df_x_val_cl = store.get('x_val_cl')
-    df_x_val_dr = store.get('x_val_dr')
-    store.close()
-
-    return (df_y_train, df_x_train_cl, df_x_train_dr), (df_y_val, df_x_val_cl, df_x_val_dr)
-
-
 def run_cv(params):
     cv_stat = {'val_mae': [], 'val_r2': []}
     for cv in range(0, 10):
         params['cv'] = cv
-        stat = run_cv_training(params)
+        stat = train(params)
         cv_stat['val_r2'].append(stat['val_r2'])
 
     return {'mean': np.mean(cv_stat['val_r2']),
@@ -97,9 +74,9 @@ if __name__ == '__main__':
               'residual': False}
 
     # main(params)
-    # params['cv'] = 0
-    # params['dropout_rate'] = 0.5
-    # run_cv_training(params)
-    params['dropout_rate'] = 0
-    stat = run_cv(params)
-    print(stat)
+    params['cv'] = 0
+    params['dropout_rate'] = 0.5
+    train(params)
+    # params['dropout_rate'] = 0.1
+    # stat = run_cv(params)
+    # print(stat)
