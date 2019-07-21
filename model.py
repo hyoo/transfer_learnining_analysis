@@ -107,24 +107,23 @@ def mae(y_true, y_pred):
 
 
 class Attention(tf.keras.layers.Layer):
-   def __init__(self, output_dim, **kwargs):
-       self.output_dim = output_dim
-       super(Attention, self).__init__(**kwargs)
+    def __init__(self, output_dim, **kwargs):
+        self.output_dim = output_dim
+        super(Attention, self).__init__(**kwargs)
 
-   def build(self, input_shape):
-       self.kernel = self.add_weight(name='kernel',
-                                     shape=(input_shape[1].value, self.output_dim),
-                                     initializer='uniform',
-                                     trainable=True)
-       super(Attention, self).build(input_shape)
+    def build(self, input_shape):
+        self.kernel = self.add_weight(name='kernel',
+                                      shape=(input_shape[1].value, self.output_dim),
+                                      initializer='uniform',
+                                      trainable=True)
+        super(Attention, self).build(input_shape)
 
-   def call(self, V):
-       Q = tf.keras.backend.dot(V, self.kernel)
-       Q = Q * V
-       Q = Q / math.sqrt(self.output_dim)
-       Q = tf.keras.activations.softmax(Q)
-       return Q
+    def call(self, V):
+        Q = tf.keras.backend.dot(V, self.kernel)
+        Q = Q * V
+        Q = Q / math.sqrt(self.output_dim)
+        Q = tf.keras.activations.softmax(Q)
+        return Q
 
-   def compute_output_shape(self, input_shape):
-       return input_shape
-
+    def compute_output_shape(self, input_shape):
+        return input_shape

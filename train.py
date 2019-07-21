@@ -2,9 +2,6 @@ import argparse
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.optimizers import SGD
 from model import build_model, r2, mae
-from tensorflow.keras.callbacks import TensorBoard
-from tensorflow.keras.optimizers import SGD
-from model import build_model, r2, mae
 from data import load_data
 import pandas as pd
 import numpy as np
@@ -109,4 +106,3 @@ if __name__ == '__main__':
         run_cv(params)
     else:
         main(params)
-
