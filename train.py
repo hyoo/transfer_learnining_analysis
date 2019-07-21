@@ -1,3 +1,7 @@
+import argparse
+from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.optimizers import SGD
+from model import build_model, r2, mae
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.optimizers import SGD
 from model import build_model, r2, mae
@@ -63,20 +67,46 @@ def main(params):
 
 
 if __name__ == '__main__':
-    params = {'data_source': 'GDSC',
-              'batch_size': 512,
-              'epochs': 30,
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data_source', type=str, default='GDSC',
+                        choices=['GDSC', 'CCLE', 'CTRP', 'NCI60', 'gCSI'],
+                        help='Data Source')
+    parser.add_argument('--epochs', type=int, default=30,
+                        help='number of epochs')
+    parser.add_argument('--cv', type=int, default=None,
+                        help='partition number')
+    parser.add_argument('--dropout_rate', type=float, default=None,
+                        help='dropout rate')
+    parser.add_argument('--model', type=str, default='uno',
+                        choices=['uno', 'attention', 'deeper'],
+                        help='model type')
+
+    args, unparsed = parser.parse_known_args()
+    p_args = vars(args)
+
+    d_args = {'batch_size': 512,
               'activation': 'relu',
               'optimizer': 'adam',
               'loss': 'mse',
               'dense_feature_layers': [1000, 1000, 1000],
-              'dense': [1000, 1000, 1000],
-              'residual': False}
+              'dense': [1000, 1000, 1000]}
 
-    # main(params)
-    params['cv'] = 0
-    params['dropout_rate'] = 0.5
-    train(params)
-    # params['dropout_rate'] = 0.1
-    # stat = run_cv(params)
-    # print(stat)
+    if args.model == 'attention':
+        m_args = {'attention': True}
+    elif args.model == 'deeper':
+        m_args = {'dense_feature_layers': [1000, 1000, 1000, 1000, 1000],
+                  'dense': [2000, 2000, 2000]}
+    else:
+        m_args = {'residual': True}
+
+    params = {**p_args, **d_args, **m_args}
+
+    if args.cv is not None:
+        if args.dropout_rate is None:
+            params['dropout_rate'] = 0
+        train(params)
+    elif args.dropout_rate is not None:
+        run_cv(params)
+    else:
+        main(params)
+
