@@ -1,4 +1,5 @@
 import argparse
+import csv
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.optimizers import SGD
 from model import build_model, r2, mae
@@ -44,23 +45,37 @@ def train(params):
 
 
 def run_cv(params):
-    cv_stat = {'val_mae': [], 'val_r2': []}
+    cv_stat = {'val_mae': [], 'val_r2': [], 'val_loss': []}
+    keys = list(cv_stat.keys())
     for cv in range(0, 10):
         params['cv'] = cv
         stat = train(params)
-        cv_stat['val_r2'].append(stat['val_r2'])
+        for key in keys:
+            cv_stat[key].append(stat[key])
 
-    return {'mean': np.mean(cv_stat['val_r2']),
-            'std': np.std(cv_stat['val_r2']),
-            'min': np.min(cv_stat['val_r2']),
-            'max': np.max(cv_stat['val_r2'])}
+    stat = {}
+    for key in keys:
+        stat['{}_mean'.format(key)] = np.mean(cv_stat[key])
+        stat['{}_std'.format(key)] = np.std(cv_stat[key])
+        stat['{}_min'.format(key)] = np.min(cv_stat[key])
+        stat['{}_max'.format(key)] = np.max(cv_stat[key])
+    return stat
 
 
 def main(params):
+    data = []
     for dropout in range(0, 6, 1):
         params['dropout_rate'] = dropout * 0.1
         cv_stat = run_cv(params)
         print('for dropout rate {}'.format(params['dropout_rate']), cv_stat)
+        d = {'drouput_rate': params['dropout_rate']}
+        datum = {**p_args, **d}
+        data.append(datum)
+
+    with open('result.csv') as csvfile:
+        writer = csv.DictWriter(csvfile)
+        for row in data:
+            writer.writerow(row)
 
 
 if __name__ == '__main__':
